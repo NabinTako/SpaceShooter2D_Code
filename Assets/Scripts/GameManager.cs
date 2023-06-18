@@ -104,4 +104,8 @@ public class GameManager : MonoBehaviour {
         explosionVisual.transform.position = position;
         Destroy(explosionVisual, maxTime);
     }
+
+    public void OnQuidGamePressed() {
+        Application.Quit();
+    }
 }
