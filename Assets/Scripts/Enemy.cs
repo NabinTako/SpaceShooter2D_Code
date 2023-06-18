@@ -11,6 +11,7 @@ public class Enemy : MonoBehaviour {
     [SerializeField] private Transform firePointA;
     [SerializeField] private Transform firePointB;
     private Transform actualFirePoint;
+    private const string PlayerGameObjectTag = "Player";
 
 
     private float yAxisLimit = -3.5f;
@@ -48,7 +49,19 @@ public class Enemy : MonoBehaviour {
         enemyMaxHit -= 1;
         if(enemyMaxHit <= 0) {
             GameManager.instance.UpdateScore();
+            GameManager.instance.OnPlayer_EnemyDestruction(transform.position);
             Destroy(gameObject);
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if(collision.gameObject.tag == PlayerGameObjectTag) {
+            if (collision.gameObject.TryGetComponent<Player>(out Player playerScript)) {
+                playerScript.OnHit();
+            }
+            GameManager.instance.OnPlayer_EnemyDestruction(transform.position);
+            Destroy(this.gameObject);
+        }
+
     }
 }

@@ -11,7 +11,12 @@ public class ShieldBehaviour : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other) {
         if(other.gameObject.tag == enemyTag || other.gameObject.tag == bulletgameObjectTag) {
             ShieldHealth -= 1;
-            Destroy(other.gameObject);
+            if(other.gameObject.tag == bulletgameObjectTag) {
+                Destroy(other.gameObject);
+            }else if(other.gameObject.tag == enemyTag) {
+                GameManager.instance.OnPlayer_EnemyDestruction(other.gameObject.transform.position);
+                Destroy(other.gameObject);
+            }
             if(ShieldHealth <= 0) {
                 ShieldHealth = 2;
                 gameObject.SetActive(false);

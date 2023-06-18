@@ -6,59 +6,61 @@ using UnityEngine;
 public class Player : MonoBehaviour {
 
 
-    private float horizontalInput;
-    private float verticalInput;
-    private float powerUpTakenTime;
-    [SerializeField]private float powerUpInterval;
-    [SerializeField] private int moveSpeed;
-    [SerializeField] private int playerMaxHit = 3;
-    [SerializeField] private Transform firePointA;
-    [SerializeField] private Transform firePointB;
-    [SerializeField] private CheckPowerUps PowerUpChecker;
-    private Transform actualFirePoint;
+    protected float horizontalInput;
+    protected float verticalInput;
+    protected float powerUpTakenTime;
+    protected int playerHitCount;
+    [SerializeField] protected int playerMaxHit = 3;
+    [SerializeField] protected GameObject[] DamagedThrusters;
+    [SerializeField] protected float powerUpInterval;
+    [SerializeField] protected int moveSpeed;
 
-    [SerializeField] private bool doubleShootBoost;
+    [SerializeField] protected AudioSource laserAudio;
+    [SerializeField] protected Transform firePointA;
+    [SerializeField] protected Transform firePointB;
+    [SerializeField] protected CheckPowerUps PowerUpChecker;
 
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private GameObject Shield;
+    protected Transform actualFirePoint;
+    protected bool doubleShootBoost;
+    
+    [SerializeField] protected GameObject bulletPrefab;
+    [SerializeField] protected GameObject Shield;
 
     // input axis names
-    private const string horizontalAxis = "Horizontal";
-    private const string verticalAxis = "Vertical";
-    private const float xAxisPositiveLimit = 4.2f;
-    private const float xAxisNegativeLimit = -4.2f;
-    private const float yAxisNegativeLimit = -2.7f;
-    private const float yAxisPositiveLimit = 1.0f;
+    protected const string horizontalAxis = "Horizontal";
+    protected const string verticalAxis = "Vertical";
+    protected const float xAxisPositiveLimit = 4.2f;
+    protected const float xAxisNegativeLimit = -4.2f;
+    protected const float yAxisNegativeLimit = -2.7f;
+    protected const float yAxisPositiveLimit = 1.0f;
 
-    private void Start() {
+    protected virtual void Start() {
         actualFirePoint = firePointA;
-
+        playerHitCount = 0;
         PowerUpChecker.OnDowbleShootPowerUP += PowerUpChecker_OnDowbleShootPowerUP;
         PowerUpChecker.OnSpeedUpPowerUP += PowerUpChecker_OnSpeedUpPowerUP;
         PowerUpChecker.OnEnableShieldPowerUP += PowerUpChecker_OnEnableShieldPowerUP;
     }
 
-    private void PowerUpChecker_OnEnableShieldPowerUP(object sender, EventArgs e) {
+    protected void PowerUpChecker_OnEnableShieldPowerUP(object sender, EventArgs e) {
         Shield.SetActive(true);
         powerUpTakenTime = Time.time;
     }
 
-    private void PowerUpChecker_OnSpeedUpPowerUP(object sender, EventArgs e) {
+    protected void PowerUpChecker_OnSpeedUpPowerUP(object sender, EventArgs e) {
         moveSpeed = 6;
         powerUpTakenTime = Time.time;
     }
 
-    private void PowerUpChecker_OnDowbleShootPowerUP(object sender, System.EventArgs e) {
+    protected void PowerUpChecker_OnDowbleShootPowerUP(object sender, System.EventArgs e) {
         doubleShootBoost = true;
         powerUpTakenTime = Time.time; 
     }
 
-    private void Update() {
-        HandelInput();
-        HandelPowerUp(powerUpTakenTime);
+    protected virtual void Update() {
     }
 
-    private void HandelPowerUp(float powerUpTime) {
+    protected virtual void HandelPowerUp(float powerUpTime) {
         if(Time.time > powerUpTime+powerUpInterval) {
             doubleShootBoost = false;
             moveSpeed = 4;
@@ -66,24 +68,11 @@ public class Player : MonoBehaviour {
 
     }
 
-    private void HandelInput() {
-        horizontalInput = Input.GetAxis(horizontalAxis);
-        verticalInput = Input.GetAxis(verticalAxis);
+   protected virtual void HandelInput() {
 
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            if (doubleShootBoost) {
-                Instantiate(bulletPrefab).transform.position = firePointA.position;
-                Instantiate(bulletPrefab).transform.position = firePointB.position;
-                return;
-            }
+        if (transform.position.y > yAxisNegativeLimit && transform.position.y < yAxisPositiveLimit) {
 
-            Instantiate(bulletPrefab).transform.position = actualFirePoint.position;
-            actualFirePoint= (actualFirePoint == firePointA)?firePointB : firePointA;
-        }
-
-        if(transform.position.y > yAxisNegativeLimit && transform.position.y < yAxisPositiveLimit) {
-
-        transform.position += new Vector3(horizontalInput, verticalInput, 0) * Time.deltaTime * moveSpeed;
+            transform.position += new Vector3(horizontalInput, verticalInput, 0) * Time.deltaTime * moveSpeed;
         }else if (transform.position.y < yAxisNegativeLimit) {
             transform.position += new Vector3(horizontalInput, 
                 (verticalInput > 0)? 1 : 0 , 0) * Time.deltaTime * moveSpeed;
@@ -102,9 +91,18 @@ public class Player : MonoBehaviour {
     }
 
     public void OnHit() {
-        playerMaxHit -= 1;
-        if (playerMaxHit <= 0) {
+        if (Shield.activeInHierarchy) {
+            return;
+        }
+        if(playerHitCount < DamagedThrusters.Length) {
+        DamagedThrusters[playerHitCount].SetActive(true);
+        }
+        playerHitCount += 1;
+        if (playerHitCount >= playerMaxHit) {
+            GameManager.instance.OnPlayer_EnemyDestruction(transform.position);
+            GameManager.instance.GameOver();
             Destroy(gameObject);
+            return;
         }
     }
 }

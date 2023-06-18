@@ -31,7 +31,6 @@ public class Bullet : MonoBehaviour {
         }
 
         Destroy(gameObject,2.5f);
-
     }
 
     private void Update() {
@@ -39,7 +38,6 @@ public class Bullet : MonoBehaviour {
     }
 
     private void OnTriggerEnter2D(Collider2D other) {
-
         if(ignorePlayer == true && (other.tag == enemyTag)) {
             if (other.TryGetComponent<Enemy>(out Enemy enemyScript)) {
                 enemyScript.OnHit();

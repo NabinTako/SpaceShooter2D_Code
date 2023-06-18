@@ -67,6 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 683002ba0415a49469d67102769b4eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  laserAudio: {fileID: 8300000, guid: 75676f361bdfeaf41a46623e95df3dbc, type: 3}
   dir: 0
   bulletSpeed: 2
 --- !u!1 &5421950590870869247
