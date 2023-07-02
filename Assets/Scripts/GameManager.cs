@@ -69,30 +69,34 @@ public class GameManager : MonoBehaviour {
                 enemySpawner.SetActive(false);
                 powerUpSpawner.SetActive(false);
                 PlayerPrefs.SetInt(bestScorePlayerPrefName, score);
+                AfterGameOver(bestScore);
             }
             return;
         }
+        AfterGameOver(bestScore);
+    }
+
+    private void AfterGameOver(int bestScore) {
+
         const string enemyGameObjectTag = "Enemy";
         GameObject[] enemyGameObjectsArray =
         GameObject.FindGameObjectsWithTag(enemyGameObjectTag);
-        foreach (GameObject enemyGameObject in enemyGameObjectsArray)
-        {
+        foreach (GameObject enemyGameObject in enemyGameObjectsArray) {
             Destroy(enemyGameObject);
         }
         enemySpawner.SetActive(false);
         powerUpSpawner.SetActive(false);
         gameOverCanvas.SetActive(true);
         gameOverScoreText.text = "Current score:    " + score;
-        if(score > bestScore) {
-        PlayerPrefs.SetInt(bestScorePlayerPrefName, score);
-        gameOverBestScoreText.text = "Previous Best:    " + bestScore;
+        if (score > bestScore) {
+            PlayerPrefs.SetInt(bestScorePlayerPrefName, score);
+            gameOverBestScoreText.text = "Previous Best:    " + bestScore;
             score = 0;
             return;
         }
         score = 0;
         gameOverBestScoreText.text = "Best Score:       " + bestScore;
     }
-
     public void ShowAudioSlider() {
         Audiocontroler.SetActive(!Audiocontroler.activeInHierarchy);
     }
